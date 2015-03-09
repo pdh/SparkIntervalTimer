@@ -164,6 +164,11 @@ void IntervalTimer::start_SIT(uint16_t Period, bool scale) {
 		nvicStructure.NVIC_IRQChannel = TIM4_IRQn;
 		TIMx = TIM4;
 		break;
+	default:	// TIM2
+		RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM2, ENABLE);
+		nvicStructure.NVIC_IRQChannel = TIM2_IRQn;
+		TIMx = TIM2;
+		break;
 	}
 	
 	// Initialize Timer
@@ -175,8 +180,7 @@ void IntervalTimer::start_SIT(uint16_t Period, bool scale) {
 			prescaler = SIT_PRESCALERm;	// Set prescaler for 2Hz clock, .5ms period
 			break;
 		default:
-			scale == uSec;				// Default to microseconds
-			prescaler = SIT_PRESCALERu;
+			prescaler = SIT_PRESCALERu;	// Default to microseconds
 			break;
 	}
 
@@ -235,6 +239,10 @@ void IntervalTimer::stop_SIT() {
 		nvicStructure.NVIC_IRQChannel = TIM4_IRQn;
 		TIMx = TIM4;
 		break;
+	default:	// TIM2
+		nvicStructure.NVIC_IRQChannel = TIM2_IRQn;
+		TIMx = TIM2;
+		break;
 	}
 	// disable counter
 	TIM_Cmd(TIMx, DISABLE);
@@ -258,21 +266,20 @@ void IntervalTimer::stop_SIT() {
 void IntervalTimer::interrupt_SIT(action ACT)
 {
     NVIC_InitTypeDef nvicStructure;
-	TIM_TypeDef* TIMx;
 
 	//use SIT_id to identify TIM#
 	switch (SIT_id) {
 	case 0:		// TIM2
 		nvicStructure.NVIC_IRQChannel = TIM2_IRQn;
-		TIMx = TIM2;
 		break;
 	case 1:		// TIM3
 		nvicStructure.NVIC_IRQChannel = TIM3_IRQn;
-		TIMx = TIM3;
 		break;
 	case 2:		// TIM4
 		nvicStructure.NVIC_IRQChannel = TIM4_IRQn;
-		TIMx = TIM4;
+		break;
+	default:	// TIM2
+		nvicStructure.NVIC_IRQChannel = TIM2_IRQn;
 		break;
 	}
 
@@ -302,7 +309,6 @@ void IntervalTimer::interrupt_SIT(action ACT)
 // ------------------------------------------------------------
 void IntervalTimer::resetPeriod_SIT(uint16_t newPeriod, bool scale)
 {
-	TIM_TimeBaseInitTypeDef timerInitStructure;
 	TIM_TypeDef* TIMx;
 	uint16_t prescaler;
 
@@ -317,6 +323,9 @@ void IntervalTimer::resetPeriod_SIT(uint16_t newPeriod, bool scale)
 	case 2:		// TIM4
 		TIMx = TIM4;
 		break;
+	default:	// TIM2
+		TIMx = TIM2;
+		break;
 	}
 
 	switch (scale) {
@@ -327,8 +336,7 @@ void IntervalTimer::resetPeriod_SIT(uint16_t newPeriod, bool scale)
 		prescaler = SIT_PRESCALERm;	// Set prescaler for 2Hz clock, .5ms period
 		break;
 	default:
-		scale = uSec;				// Default to microseconds
-		prescaler = SIT_PRESCALERu;
+		prescaler = SIT_PRESCALERu;	// Default to microseconds
 		break;
 	}
 
